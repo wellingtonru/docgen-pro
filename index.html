@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocGen Pro — Documentos Profissionais com IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f2eb;
+    --cream: #ede9df;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --rust: #b84c2a;
+    --sage: #4a6741;
+    --muted: #7a7468;
+    --border: #d4cfc4;
+    --shadow: rgba(10,10,15,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(74,103,65,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 2rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(245,242,235,0.95);
+    backdrop-filter: blur(8px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .logo-main {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .logo-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: 1px solid var(--gold);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .header-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .header-price span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 5rem 2rem 3rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: '';
+    height: 1px;
+    width: 40px;
+    background: var(--rust);
+    opacity: 0.4;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 2rem;
+  }
+
+  /* DOCUMENT TYPE SELECTOR */
+  .doc-types {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+  }
+
+  .doc-types-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .doc-card {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.5);
+    padding: 1.1rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .doc-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .doc-card:hover::before { opacity: 0.04; }
+  .doc-card.active { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+  .doc-card.active::before { opacity: 0.06; }
+
+  .doc-card-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .doc-card-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+
+  .doc-card-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--gold);
+  }
+
+  /* MAIN FORM AREA */
+  .main-area {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (max-width: 680px) {
+    .main-area { grid-template-columns: 1fr; }
+    header { padding: 1.5rem; }
+    .hero { padding: 3rem 1.5rem 2rem; }
+  }
+
+  .panel {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.6);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .panel-body { padding: 1.25rem; }
+
+  /* FORM FIELDS */
+  .field-group {
+    margin-bottom: 1rem;
+  }
+
+  .field-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .field-label span {
+    color: var(--muted);
+    font-weight: 300;
+    font-size: 0.72rem;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 3px;
+    transition: border-color 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--gold);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.6;
+  }
+
+  /* PAYMENT MOCK */
+  .payment-block {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    background: var(--cream);
+    margin-bottom: 1rem;
+  }
+
+  .payment-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    margin-bottom: 0.4rem;
+    color: var(--muted);
+  }
+
+  .payment-row.total {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 0.9rem;
+  }
+
+  .payment-row .val {
+    font-family: 'DM Mono', monospace;
+    color: var(--ink);
+  }
+
+  .payment-row.total .val {
+    color: var(--gold);
+    font-size: 1rem;
+  }
+
+  /* GENERATE BUTTON */
+  .btn-generate {
+    width: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 0.9rem 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-style: italic;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-generate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-generate:hover::after { opacity: 0.12; }
+  .btn-generate:active { transform: translateY(1px); }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-generate-text { position: relative; z-index: 1; }
+
+  /* OUTPUT PANEL */
+  .output-content {
+    min-height: 300px;
+    position: relative;
+  }
+
+  .output-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--muted);
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .output-placeholder-icon {
+    font-size: 2rem;
+    opacity: 0.3;
+  }
+
+  .output-placeholder p {
+    font-size: 0.82rem;
+    max-width: 200px;
+    line-height: 1.6;
+  }
+
+  .output-text {
+    display: none;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--ink);
+    white-space: pre-wrap;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .output-text.visible { display: block; }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    gap: 1rem;
+  }
+
+  .loading.visible { display: flex; }
+
+  .loading-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .loading-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  .loading-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* OUTPUT ACTIONS */
+  .output-actions {
+    display: none;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: rgba(255,255,255,0.8);
+  }
+
+  .output-actions.visible { display: flex; }
+
+  .btn-action {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+
+  .btn-action:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* STRIPE NOTICE */
+  .stripe-notice {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+  }
+
+  .stripe-banner {
+    background: rgba(74,103,65,0.08);
+    border: 1px solid rgba(74,103,65,0.25);
+    border-radius: 4px;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--sage);
+  }
+
+  .stripe-banner strong { font-weight: 500; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.75rem 1.25rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'DM Mono', monospace;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* DIVIDER */
+  .ornament {
+    text-align: center;
+    color: var(--border);
+    font-size: 1.2rem;
+    letter-spacing: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  /* STEP INDICATOR */
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--gold);
+    color: white;
+    font-size: 0.65rem;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <span class="logo-main">DocGen</span>
+    <span class="logo-tag">Pro</span>
+  </div>
+  <div class="header-price">
+    Documentos profissionais a partir de <span>€1,50 / doc</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">✦ Powered by IA ✦</div>
+  <h1>Documentos prontos<br>em <em>segundos</em></h1>
+  <p>Escolhe o tipo de documento, preenche os detalhes, e a IA cria um documento profissional pronto a usar.</p>
+</div>
+
+<!-- DOCUMENT TYPE SELECTOR -->
+<div class="doc-types">
+  <div class="doc-types-label">Seleciona o tipo de documento</div>
+  <div class="doc-grid">
+    <div class="doc-card active" data-type="contrato_freelancer" data-price="1.50" onclick="selectDocType(this)">
+      <span class="doc-card-icon">📋</span>
+      <span class="doc-card-name">Contrato Freelancer</span>
+      <span class="doc-card-price">€1,50</span>
+    </div>
+    <div class="doc-card" data-type="proposta_comercial" data-price="2.00" onclick="selectDocType(this)">
+      <span class="doc-card-icon">💼</span>
+      <span class="doc-card-name">Proposta Comercial</span>
+      <span class="doc-card-price">€2,00</span>
+    </div>
+    <div class="doc-card" data-type="politica_privacidade" data-price="2.50" onclick="selectDocType(this)">
+      <span class="doc-card-icon">🔒</span>
+      <span class="doc-card-name">Política de Privacidade</span>
+      <span class="doc-card-price">€2,50</span>
+    </div>
+    <div class="doc-card" data-type="nda" data-price="2.00" onclick="selectDocType(this)">
+      <span class="doc-card-icon">🤝</span>
+      <span class="doc-card-name">NDA / Confidencial.</span>
+      <span class="doc-card-price">€2,00</span>
+    </div>
+    <div class="doc-card" data-type="termos_servico" data-price="2.50" onclick="selectDocType(this)">
+      <span class="doc-card-icon">📄</span>
+      <span class="doc-card-name">Termos de Serviço</span>
+      <span class="doc-card-price">€2,50</span>
+    </div>
+  </div>
+</div>
+
+<!-- STRIPE NOTICE -->
+<div class="stripe-notice">
+  <div class="stripe-banner">
+    <span>🔒</span>
+    <div><strong>Pagamento seguro via Stripe</strong> — O documento é gerado apenas após confirmação do pagamento.</div>
+  </div>
+</div>
+
+<!-- MAIN AREA -->
+<div class="main-area">
+
+  <!-- INPUT PANEL -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">① Detalhes do documento</span>
+    </div>
+    <div class="panel-body">
+      <div class="field-group">
+        <label class="field-label">Teu nome / empresa <span>(quem emite)</span></label>
+        <input type="text" id="field_emissor" placeholder="Ex: João Silva / TechStudio Lda" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Nome do cliente / outra parte</label>
+        <input type="text" id="field_cliente" placeholder="Ex: Maria Santos / Empresa ABC" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Descreve o contexto <span>(quanto mais detalhe, melhor)</span></label>
+        <textarea id="field_contexto" placeholder="Ex: Contrato para desenvolvimento de website de ecommerce, prazo de 30 dias, valor €1500, pagamento em 2 prestações..."></textarea>
+      </div>
+
+      <div class="ornament">· · ·</div>
+
+      <!-- PAYMENT MOCK -->
+      <div class="payment-block">
+        <div class="payment-row">
+          <span>Tipo de documento</span>
+          <span class="val" id="pay_tipo">Contrato Freelancer</span>
+        </div>
+        <div class="payment-row">
+          <span>Geração por IA</span>
+          <span class="val" id="pay_preco">€1,50</span>
+        </div>
+        <div class="payment-row total">
+          <span>Total</span>
+          <span class="val" id="pay_total">€1,50</span>
+        </div>
+      </div>
+
+      <button class="btn-generate" onclick="generateDocument()" id="btn_gen">
+        <span class="btn-generate-text">✦ Gerar Documento</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">② Documento gerado</span>
+      <span id="output_badge" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--sage);display:none;">✓ PRONTO</span>
+    </div>
+    <div class="panel-body output-content" style="padding:1.25rem;">
+      <div class="output-placeholder" id="placeholder">
+        <span class="output-placeholder-icon">📄</span>
+        <p>O teu documento aparecerá aqui após gerar</p>
+      </div>
+      <div class="loading" id="loading">
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <div class="loading-text">A redigir documento...</div>
+      </div>
+      <pre class="output-text" id="output_text"></pre>
+    </div>
+    <div class="output-actions" id="output_actions">
+      <button class="btn-action" onclick="copyDocument()">📋 Copiar</button>
+      <button class="btn-action" onclick="downloadDocument()">⬇ Download .txt</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  // ============================================================
+  // CONFIGURAÇÃO
+  // ============================================================
+  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51T7YYgHNxrgHDdQj2xLhgXEIIOsfpPNVdcKyxNPzjX7lBGiycQtmotzovtDSMutjSRGOkpikbfmbc14JzOdsCrUG00R8VZsAnb';
+  // A Anthropic API Key está protegida no servidor (api/generate.js)
+  // ============================================================
+
+  const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+  let currentDocType = 'contrato_freelancer';
+  let currentPrice = '1.50';
+  let currentDocName = 'Contrato Freelancer';
+  let currentPriceId = 'price_1T7YuiHNxrgHDdQjjSBrhOnq';
+  let generatedContent = '';
+
+  // --- RATE LIMITING (5 docs/hora por sessão) ---
+  const RATE_LIMIT = 5;
+  const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hora
+
+  function getRateData() {
+    try {
+      const raw = sessionStorage.getItem('rl');
+      return raw ? JSON.parse(raw) : { count: 0, window_start: Date.now() };
+    } catch { return { count: 0, window_start: Date.now() }; }
+  }
+
+  function checkRateLimit() {
+    let rl = getRateData();
+    const now = Date.now();
+    if (now - rl.window_start > RATE_WINDOW_MS) {
+      rl = { count: 0, window_start: now };
+    }
+    if (rl.count >= RATE_LIMIT) {
+      const minLeft = Math.ceil((RATE_WINDOW_MS - (now - rl.window_start)) / 60000);
+      showToast(`⚠ Limite atingido. Tenta em ${minLeft} min.`);
+      return false;
+    }
+    rl.count++;
+    try { sessionStorage.setItem('rl', JSON.stringify(rl)); } catch {}
+    return true;
+  }
+
+  // --- DOC TYPE SELECTOR ---
+  const docPrices = {
+    contrato_freelancer: { price: '1.50', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
+    proposta_comercial:  { price: '2.00', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
+    politica_privacidade:{ price: '2.50', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
+    nda:                 { price: '2.00', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
+    termos_servico:      { price: '2.50', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
+  };
+
+  function selectDocType(el) {
+    document.querySelectorAll('.doc-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentDocType = el.dataset.type;
+    currentDocName = el.querySelector('.doc-card-name').textContent;
+    currentPrice = docPrices[currentDocType].price;
+    currentPriceId = docPrices[currentDocType].priceId;
+
+    document.getElementById('pay_tipo').textContent = currentDocName;
+    document.getElementById('pay_preco').textContent = '€' + parseFloat(currentPrice).toFixed(2).replace('.', ',');
+    document.getElementById('pay_total').textContent = '€' + parseFloat(currentPrice).toFixed(2).replace('.', ',');
+  }
+
+  // --- MAIN FLOW ---
+  async function generateDocument() {
+    const emissor  = document.getElementById('field_emissor').value.trim();
+    const cliente  = document.getElementById('field_cliente').value.trim();
+    const contexto = document.getElementById('field_contexto').value.trim();
+
+    if (!emissor || !cliente || !contexto) {
+      showToast('⚠ Preenche todos os campos antes de gerar.');
+      return;
+    }
+
+    if (!checkRateLimit()) return;
+
+    // Guardar dados temporariamente para usar após pagamento
+    sessionStorage.setItem('pending_doc', JSON.stringify({ emissor, cliente, contexto, docType: currentDocType, docName: currentDocName }));
+
+    // Redirecionar para Stripe Checkout
+    showToast('A redirecionar para pagamento...');
+    document.getElementById('btn_gen').disabled = true;
+
+    try {
+      const result = await stripe.redirectToCheckout({
+        lineItems: [{ price: currentPriceId, quantity: 1 }],
+        mode: 'payment',
+        successUrl: window.location.href + '?status=success',
+        cancelUrl:  window.location.href + '?status=cancel',
+        locale: 'pt'
+      });
+      if (result.error) {
+        showToast('✗ ' + result.error.message);
+        document.getElementById('btn_gen').disabled = false;
+      }
+    } catch (err) {
+      showToast('✗ Erro no pagamento. Tenta novamente.');
+      document.getElementById('btn_gen').disabled = false;
+    }
+  }
+
+  // --- GERAR DOCUMENTO APÓS PAGAMENTO CONFIRMADO ---
+  async function generateAfterPayment(data) {
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('output_text').classList.remove('visible');
+    document.getElementById('output_actions').classList.remove('visible');
+    document.getElementById('output_badge').style.display = 'none';
+    document.getElementById('loading').classList.add('visible');
+
+    const today = new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' });
+    const { emissor, cliente, contexto, docType } = data;
+
+    const prompts = {
+      contrato_freelancer: `Redige um Contrato de Prestação de Serviços (Freelancer) completo e profissional em português europeu (Portugal). Data: ${today}. Prestador: ${emissor}. Cliente: ${cliente}. Contexto do projeto: ${contexto}. O contrato deve incluir: objeto do contrato, prazo, remuneração e condições de pagamento, propriedade intelectual, confidencialidade, rescisão, responsabilidades de cada parte, e assinaturas. Usa linguagem jurídica mas clara. Formata com secções numeradas.`,
+      proposta_comercial: `Redige uma Proposta Comercial profissional em português europeu (Portugal). Data: ${today}. Empresa proponente: ${emissor}. Destinatário: ${cliente}. Contexto: ${contexto}. Inclui: apresentação, descrição da solução proposta, metodologia, prazo, investimento, condições, próximos passos e secção de aceitação. Tom profissional e persuasivo.`,
+      politica_privacidade: `Redige uma Política de Privacidade completa e em conformidade com o RGPD, em português europeu (Portugal). Responsável pelo tratamento: ${emissor}. Contexto/serviço: ${contexto}. Inclui: dados recolhidos, finalidade, base legal, prazo de conservação, direitos do titular, partilha com terceiros, cookies, contacto do DPO/responsável, e data de entrada em vigor (${today}).`,
+      nda: `Redige um Acordo de Confidencialidade (NDA) bilateral completo em português europeu (Portugal). Data: ${today}. Primeira Parte: ${emissor}. Segunda Parte: ${cliente}. Contexto: ${contexto}. Inclui: definição de informação confidencial, obrigações das partes, exceções, prazo de vigência, consequências da violação, lei aplicável e foro competente. Assinaturas de ambas as partes.`,
+      termos_servico: `Redige Termos e Condições de Serviço completos em português europeu (Portugal), em conformidade com a legislação portuguesa e europeia. Prestador do serviço: ${emissor}. Contexto/serviço: ${contexto}. Data: ${today}. Inclui: aceitação dos termos, descrição do serviço, obrigações do utilizador, pagamentos e reembolsos, propriedade intelectual, limitação de responsabilidade, alterações aos termos, lei aplicável e contacto.`
+    };
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompts[docType] })
+      });
+
+      const result = await response.json();
+      const text = result.content?.map(b => b.text || '').join('\n') || '';
+
+      generatedContent = text;
+      document.getElementById('loading').classList.remove('visible');
+      const outputEl = document.getElementById('output_text');
+      outputEl.textContent = text;
+      outputEl.classList.add('visible');
+      document.getElementById('output_actions').classList.add('visible');
+      document.getElementById('output_badge').style.display = 'inline';
+      showToast('✓ Pagamento confirmado! Documento gerado.');
+
+    } catch (err) {
+      document.getElementById('loading').classList.remove('visible');
+      document.getElementById('placeholder').style.display = 'flex';
+      showToast('✗ Erro ao gerar o documento. Contacta o suporte.');
+    }
+  }
+
+  // --- VERIFICAR RETORNO DO STRIPE ---
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+
+    if (status === 'success') {
+      const pending = sessionStorage.getItem('pending_doc');
+      if (pending) {
+        sessionStorage.removeItem('pending_doc');
+        // Limpar URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        generateAfterPayment(JSON.parse(pending));
+      }
+    } else if (status === 'cancel') {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      showToast('⚠ Pagamento cancelado. Podes tentar novamente.');
+    }
+  });
+
+  function copyDocument() {
+    if (!generatedContent) return;
+    navigator.clipboard.writeText(generatedContent).then(() => {
+      showToast('✓ Copiado para a área de transferência!');
+    });
+  }
+
+  function downloadDocument() {
+    if (!generatedContent) return;
+    const blob = new Blob([generatedContent], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = currentDocType + '_' + Date.now() + '.txt';
+    a.click();
+    showToast('⬇ Download iniciado!');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
