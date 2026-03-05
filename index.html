@@ -704,7 +704,7 @@
   // ============================================================
   // CONFIGURAÇÃO
   // ============================================================
-  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51T7YYgHNxrgHDdQj2xLhgXEIIOsfpPNVdcKyxNPzjX7lBGiycQtmotzovtDSMutjSRGOkpikbfmbc14JzOdsCrUG00R8VZsAnb';
+  const STRIPE_PUBLISHABLE_KEY = 'pk_live_51T7YYQHO5n232GZtGLiKqT3LqPTHETR5eReCOQxGKuLckROzR2Z31M8YGTNnrXQEApwzbD3QOM9P9PmaCB8w6Jpk009P1roxwj';
   // A Anthropic API Key está protegida no servidor (api/generate.js)
   // ============================================================
 
@@ -713,7 +713,7 @@
   let currentDocType = 'contrato_freelancer';
   let currentPrice = '1.50';
   let currentDocName = 'Contrato Freelancer';
-  let currentPriceId = 'price_1T7YuiHNxrgHDdQjjSBrhOnq';
+  let currentPriceId = 'price_1T7Zp5HO5n232GZtHpqy02wM';
   let generatedContent = '';
 
   // --- RATE LIMITING (5 docs/hora por sessão) ---
@@ -745,11 +745,11 @@
 
   // --- DOC TYPE SELECTOR ---
   const docPrices = {
-    contrato_freelancer: { price: '1.50', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
-    proposta_comercial:  { price: '2.00', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
-    politica_privacidade:{ price: '2.50', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
-    nda:                 { price: '2.00', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
-    termos_servico:      { price: '2.50', priceId: 'price_1T7YuiHNxrgHDdQjjSBrhOnq' },
+    contrato_freelancer: { price: '1.50', priceId: 'price_1T7Zp5HO5n232GZtHpqy02wM' },
+    proposta_comercial:  { price: '2.00', priceId: 'price_1T7Zp5HO5n232GZtHpqy02wM' },
+    politica_privacidade:{ price: '2.50', priceId: 'price_1T7Zp5HO5n232GZtHpqy02wM' },
+    nda:                 { price: '2.00', priceId: 'price_1T7Zp5HO5n232GZtHpqy02wM' },
+    termos_servico:      { price: '2.50', priceId: 'price_1T7Zp5HO5n232GZtHpqy02wM' },
   };
 
   function selectDocType(el) {
