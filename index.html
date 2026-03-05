@@ -781,26 +781,14 @@
     // Guardar dados temporariamente para usar após pagamento
     sessionStorage.setItem('pending_doc', JSON.stringify({ emissor, cliente, contexto, docType: currentDocType, docName: currentDocName }));
 
-    // Redirecionar para Stripe Checkout
+    // Redirecionar para Stripe Payment Link
     showToast('A redirecionar para pagamento...');
     document.getElementById('btn_gen').disabled = true;
 
-    try {
-      const result = await stripe.redirectToCheckout({
-        lineItems: [{ price: currentPriceId, quantity: 1 }],
-        mode: 'payment',
-        successUrl: window.location.href + '?status=success',
-        cancelUrl:  window.location.href + '?status=cancel',
-        locale: 'pt'
-      });
-      if (result.error) {
-        showToast('✗ ' + result.error.message);
-        document.getElementById('btn_gen').disabled = false;
-      }
-    } catch (err) {
-      showToast('✗ Erro no pagamento. Tenta novamente.');
-      document.getElementById('btn_gen').disabled = false;
-    }
+    // Payment Link do Stripe — redireciona diretamente
+    const successUrl = encodeURIComponent(window.location.href.split('?')[0] + '?status=success');
+    const cancelUrl = encodeURIComponent(window.location.href.split('?')[0] + '?status=cancel');
+    window.location.href = `https://buy.stripe.com/14AeVddIK95PfTA7Eibo400`;
   }
 
   // --- GERAR DOCUMENTO APÓS PAGAMENTO CONFIRMADO ---
